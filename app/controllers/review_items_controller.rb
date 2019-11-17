@@ -1,18 +1,31 @@
 class ReviewItemsController < ApplicationController
+  before_action :set_review, only: [:show, :index]
   before_action :set_review_item, only: [:show]
 
-  # GET /review_items
+  # GET /reviews/:review_id/review_items
   def index
-    @review_items = ReviewItem.all
+    render json: { review_items: ReviewItem.where(review_id: @review.id) }
   end
 
-  # GET /review_items/1
+  # GET /reviews/:review_id/review_items/:id
   def show
+    render json: @review_item.to_json
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_review_item
-      @review_item = ReviewItem.find(params[:id])
+      item_results = ReviewItem.where(id: params[:id], review_id: @review.id)
+      if item_results.length == 0
+        head :not_found
+      end
+
+      @review_item = item_results[0]
+    end
+
+    def set_review
+      @review = Review.find_by_id(params[:review_id])
+      if @review == nil
+        head :not_found
+      end
     end
 end

@@ -11,6 +11,15 @@ gem 'puma', '~> 3.11'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
 
+# Using sucker punch to create async jobs
+gem 'sucker_punch', '~> 2.0'
+
+# Using Http for the Http library
+gem 'http', '~> 4.2.0'
+
+# Using redis for communicating between the job thread and the main thread
+gem 'redis', '~> 4.1.3
+'
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
