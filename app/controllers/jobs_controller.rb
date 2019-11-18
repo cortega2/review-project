@@ -15,17 +15,15 @@ class JobsController < ApplicationController
   # POST /jobs
   def create
     redis = Redis.new
-
-    puts "this is the url"
-    puts params[:url]
-
     job = Job.create({url: params[:url], status: "queued"})
     response.stream.write(job.to_json + "\n")
 
     begin
       CollectorJob.perform_async(job.id)
     rescue Concurrent::RejectedExecutionError => e
-      render json: {error: "Unable to create job"}, status: :too_many_requests and return
+      resp = {error: "Unable to create job due to queue being full"}.to_json
+      response.stream.write(resp + "\n")
+      return
     end
 
     redis.subscribe("job.#{job.id}", "end.#{job.id}") do | on |

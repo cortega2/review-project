@@ -3,36 +3,11 @@ require "rails_helper"
 RSpec.describe ReviewItemsController, type: :routing do
   describe "routing" do
     it "routes to #index" do
-      expect(:get => "/review_items").to route_to("review_items#index")
-    end
-
-    it "routes to #new" do
-      expect(:get => "/review_items/new").to route_to("review_items#new")
+      expect(:get => "reviews/1/review_items").to route_to("review_items#index", :review_id => "1")
     end
 
     it "routes to #show" do
-      expect(:get => "/review_items/1").to route_to("review_items#show", :id => "1")
-    end
-
-    it "routes to #edit" do
-      expect(:get => "/review_items/1/edit").to route_to("review_items#edit", :id => "1")
-    end
-
-
-    it "routes to #create" do
-      expect(:post => "/review_items").to route_to("review_items#create")
-    end
-
-    it "routes to #update via PUT" do
-      expect(:put => "/review_items/1").to route_to("review_items#update", :id => "1")
-    end
-
-    it "routes to #update via PATCH" do
-      expect(:patch => "/review_items/1").to route_to("review_items#update", :id => "1")
-    end
-
-    it "routes to #destroy" do
-      expect(:delete => "/review_items/1").to route_to("review_items#destroy", :id => "1")
+      expect(:get => "reviews/1/review_items/1").to route_to("review_items#show", :review_id => "1", :id => "1")
     end
   end
 end

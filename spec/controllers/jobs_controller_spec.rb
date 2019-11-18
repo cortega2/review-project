@@ -1,57 +1,62 @@
 require 'rails_helper'
+require 'pry'
 
 RSpec.describe JobsController, type: :controller do
-
-  # This should return the minimal set of attributes required to create a valid
-  # Job. As you add validations to Job, be sure to
-  # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
-  }
-
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
-  }
-
-  # This should return the minimal set of values that should be in the session
-  # in order to pass any filters (e.g. authentication) defined in
-  # JobsController. Be sure to keep this updated too.
-  let(:valid_session) { {} }
-
   describe "GET #index" do
     it "returns a success response" do
-      Job.create! valid_attributes
-      get :index, params: {}, session: valid_session
+      job = FactoryBot.create(:job)
+      get :index, params: {}
       expect(response).to be_successful
     end
   end
 
   describe "GET #show" do
     it "returns a success response" do
-      job = Job.create! valid_attributes
-      get :show, params: {id: job.to_param}, session: valid_session
+      job = FactoryBot.create(:job)
+      get :show, params: {id: job.id}
       expect(response).to be_successful
     end
   end
 
+  # NOTE
+  # I was following this guide to test the redis part of the code
+  # https://gist.github.com/juanhiplogiq/8100263, however it's not clear if checking agains the
+  # response body is the best way to do this since what is in that guide doesnt work here
   describe "POST #create" do
-    context "with valid params" do
-      it "creates a new Job" do
-        expect {
-          post :create, params: {job: valid_attributes}, session: valid_session
-        }.to change(Job, :count).by(1)
-      end
+    context "when the queue is full" do
+      it "returns a too many request error" do
+        redis = double()
+        allow(redis).to receive(:quit)
 
-      it "redirects to the created job" do
-        post :create, params: {job: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(Job.last)
+        job = Job.new({url: "test.com"})
+
+        allow(Redis).to receive(:new).and_return(redis)
+        allow(Job).to receive(:create).and_return(job)
+        allow(CollectorJob).to receive(:perform_async).and_raise(Concurrent::RejectedExecutionError.new)
+
+        post :create, params: {url: "test.com"}
+        expect(response.body).to eq(job.to_json + "\n" + {error: "Unable to create job due to queue being full"}.to_json + "\n")
       end
     end
 
-    context "with invalid params" do
-      it "returns a success response (i.e. to display the 'new' template)" do
-        post :create, params: {job: invalid_attributes}, session: valid_session
-        expect(response).to be_successful
+    context "when a job is accepted" do
+      it "streams job data" do
+        data = {field: "value"}
+        job = Job.new({id: 1, url: "test.com"})
+
+        r_message = double()
+        allow(r_message).to receive(:message).and_yield("job.#{job.id}", data.to_json)
+
+        redis = double()
+        allow(redis).to receive(:subscribe).with("job.#{job.id}", "end.#{job.id}").and_yield(r_message)
+        allow(redis).to receive(:quit)
+
+        allow(Redis).to receive(:new).and_return(redis)
+        allow(Job).to receive(:create).and_return(job)
+        allow(CollectorJob).to receive(:perform_async)
+
+        post :create, params: {url: "test.com"}
+        expect(response.body).to eq(job.to_json + "\n" + data.to_json + "\n")
       end
     end
   end
