@@ -133,6 +133,7 @@ The post jobs endpoint is a streaming endpoint and will stream all the available
 
 ###### Providing a bad url
 The application will attempt to get the page from the website, if it cant access the website it will update the job with that message and this info will be streamed to the user.
+
 `curl --header "Content-Type: application/json" --request POST --data '{"url": "https://dfgaravfasdfagregsfdasf.com/"}' http://localhost:3000/jobs`
 ```
 {"id":6,"status":"queued","review_id":null,"details":null,"url":"https://dfgaravfasdfagregsfdasf.com/","created_at":"2019-11-18T05:04:11.063Z","updated_at":"2019-11-18T05:04:11.063Z"}
@@ -142,6 +143,7 @@ The application will attempt to get the page from the website, if it cant access
 
 ###### Providing url that is not from the review website
 If the application is able to access the page, it will then look for the lendor information. If it is not able to find that information, it will update the job with that message and this info will be streamed to the user.
+
 `curl --header "Content-Type: application/json" --request POST --data '{"url": "https://stackoverflow.com/"}' http://localhost:3000/jobs`
 ```
 {"id":7,"status":"queued","review_id":null,"details":null,"url":"https://stackoverflow.com/","created_at":"2019-11-18T05:07:14.173Z","updated_at":"2019-11-18T05:07:14.173Z"}
@@ -151,6 +153,7 @@ If the application is able to access the page, it will then look for the lendor 
 
 ###### Providing url for a review page that is already stored
 The application stores all the reviews from the jobs. In the case that a job is created that is a duplicate of another previous job, the application will not proceed and display that information. Note that it will update the job to show the review id that corresponds with the url that was provided. This way the user can still get the reviews using the GET reviews end point.
+
 `curl --header "Content-Type: application/json" --request POST --data '{"url": "https://www.lendingtree.com/reviews/mortgage/first-midwest-bank/49832469"}' http://localhost:3000/jobs`
 ```
 {"id":5,"status":"queued","review_id":null,"details":null,"url":"https://www.lendingtree.com/reviews/mortgage/first-midwest-bank/49832469","created_at":"2019-11-18T05:03:05.359Z","updated_at":"2019-11-18T05:03:05.359Z"}
@@ -160,6 +163,7 @@ The application stores all the reviews from the jobs. In the case that a job is 
 
 ###### Providing a new review url
 When a new review url is posted, the application will stream the updates of the job. This will include job update. Getting the summary of the page, and the individual review items.
+
 `curl --header "Content-Type: application/json" --request POST --data '{"url": "https://www.lendingtree.com/reviews/mortgage/first-midwest-bank/49832469"}' http://localhost:3000/jobs`
 ```
 {"id":1,"status":"queued","review_id":null,"details":null,"url":"https://www.lendingtree.com/reviews/mortgage/first-midwest-bank/49832469","created_at":"2019-11-18T05:19:37.225Z","updated_at":"2019-11-18T05:19:37.225Z"}                   {"id":1,"status":"started","review_id":null,"details":null,"url":"https://www.lendingtree.com/reviews/mortgage/first-midwest-bank/49832469","created_at":"2019-11-18T05:19:37.225Z","updated_at":"2019-11-18T05:19:37.235Z"}
