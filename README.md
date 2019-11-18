@@ -23,10 +23,10 @@ connection open         |             /
                         Redis  PubSub  
 ```
 ## Requirements
-ruby 2.6.3
-sqlite
-docker
-docker-compose
+* ruby 2.6.3
+* sqlite
+* docker
+* docker-compose
 
 ## Install
 * clone the repo
